@@ -9,7 +9,7 @@ publish      = false
 disruptor       = { path = ".." }
 crossbeam       = "0.8"
 crossbeam-utils = { workspace = true }
-criterion       = { version = "0.5", features = ["html_reports"] }
+criterion       = { version = "0.8", features = ["html_reports"] }
 
 [[bench]]
 name    = "spsc"
