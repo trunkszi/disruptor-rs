@@ -1,0 +1,49 @@
+name: Cross-Platform
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  cross-compile:
+    name: "Cross (${{ matrix.target }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - riscv64gc-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Install cross
+        run: cargo install cross
+      - name: Build workspace
+        run: cross build --target ${{ matrix.target }} --workspace
+      - name: Test workspace
+        run: cross test --target ${{ matrix.target }} --workspace
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+
+  wasm-check:
+    name: "WASM Build Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Build disruptor-core for WASM
+        run: cargo build -p disruptor-core --target wasm32-unknown-unknown
+        continue-on-error: true
+      - name: Build disruptor-wait for WASM (no_std strategies only)
+        run: cargo build -p disruptor-wait --target wasm32-unknown-unknown
+        continue-on-error: true

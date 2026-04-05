@@ -1,0 +1,47 @@
+[package]
+name         = "disruptor-bench"
+version      = "0.0.0"
+edition.workspace    = true
+rust-version.workspace = true
+publish      = false
+
+[dependencies]
+disruptor       = { path = ".." }
+crossbeam       = "0.8"
+crossbeam-utils = { workspace = true }
+criterion       = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name    = "spsc"
+path    = "spsc.rs"
+harness = false
+
+[[bench]]
+name    = "mpsc"
+path    = "mpsc.rs"
+harness = false
+
+[[bench]]
+name    = "poller"
+path    = "poller.rs"
+harness = false
+
+[[bench]]
+name    = "counters"
+path    = "counters.rs"
+harness = false
+
+[[bench]]
+name    = "unicast_throughput"
+path    = "unicast_throughput.rs"
+harness = false
+
+[[bench]]
+name    = "latency"
+path    = "latency.rs"
+harness = false
+
+[[bench]]
+name    = "comparison"
+path    = "comparison.rs"
+harness = false

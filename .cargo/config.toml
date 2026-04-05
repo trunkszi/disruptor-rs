@@ -1,0 +1,40 @@
+[term]
+verbose = true
+
+[build]
+rustflags = ["-C", "target-cpu=native"]
+# rustc-wrapper = "sccache"
+# Note: For nightly-only tuning, run with:
+#   RUSTFLAGS="-C target-cpu=native -Z tune-cpu=native" cargo +nightly build
+
+[alias]
+perf-build-std = "build --profile perf -Z build-std=core,alloc,std,proc_macro -Z allow-features=build-std,build-std-features,panic-immediate-abort,panic-abort-tests"
+perf-bench-std = "bench --profile perf -Z build-std=core,alloc,std,proc_macro -Z allow-features=build-std,build-std-features,panic-immediate-abort,panic-abort-tests"
+
+[target.x86_64-unknown-linux-gnu]
+# Enable cross-language LTO for DPDK builds (future)
+# rustflags = ["-C", "linker-plugin-lto", "-C", "linker=clang"]
+
+# [unstable]  # Nightly-only features, uncomment for development:
+# codegen-backend = true
+# trim-paths = true
+# profile-rustflags = true
+
+[net]
+git-fetch-with-cli = true
+
+# Performance profile: maximum optimization for production.
+# Use with: RUSTC_WRAPPER="" cargo build --profile perf
+# To enable build-std for stdlib recompilation:
+#   RUSTC_WRAPPER="" cargo +nightly build --profile perf -Z build-std=core,alloc,std
+[profile.perf]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+# Benchmark profile: optimized with debug info for perf profiling.
+[profile.bench]
+lto = "thin"
+codegen-units = 1

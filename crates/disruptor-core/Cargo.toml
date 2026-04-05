@@ -1,0 +1,20 @@
+[package]
+name          = "disruptor-core"
+version       = "0.1.0"
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+description   = "Core primitives for the disruptor-rs framework: Sequence, RingBuffer, Cursor, Barrier."
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["std"]
+std = []
+alloc = []
+
+[dependencies]
+crossbeam-utils = { workspace = true }

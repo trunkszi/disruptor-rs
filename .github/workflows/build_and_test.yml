@@ -1,0 +1,138 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, beta, nightly]
+    name: "Build (${{ matrix.rust }})"
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.rust }}
+        components: clippy
+    - name: Build workspace
+      run: cargo build --workspace --verbose
+    - name: Run workspace tests
+      run: cargo test --workspace --verbose
+    - name: Clippy
+      if: matrix.rust == 'stable'
+      run: cargo clippy --workspace -- -D warnings
+
+  msrv:
+    name: "MSRV (1.85)"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: "1.85"
+    - name: Check MSRV
+      run: cargo check --workspace
+
+  miri:
+    name: "Miri"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Miri
+        run: |
+          rustup toolchain install nightly --component miri
+          rustup override set nightly
+          cargo miri setup
+      - name: Test with Miri
+        run: cargo miri test
+
+  loom:
+    name: "Loom"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run loom tests
+        run: RUSTFLAGS="--cfg loom" cargo test --test loom_tests --release
+
+  dep-check:
+    name: "Dependency Direction"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify disruptor-core has no workspace dependencies
+        run: |
+          deps=$(cargo tree -p disruptor-core --depth 1 | grep -c 'disruptor-' || true)
+          if [ "$deps" -ne 1 ]; then
+            echo "ERROR: disruptor-core has unexpected workspace dependencies"
+            cargo tree -p disruptor-core --depth 1
+            exit 1
+          fi
+      - name: Show workspace dependency tree
+        run: cargo tree --workspace --depth 2
+
+  semver-check:
+    name: "Semver Compliance"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-semver-checks
+        run: cargo install cargo-semver-checks
+      - name: Check semver compliance
+        run: cargo semver-checks check-release --workspace
+        continue-on-error: true
+
+  bench-regression:
+    name: "Performance Regression Gate"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install critcmp
+        run: cargo install critcmp
+      - name: Benchmark base branch
+        run: |
+          git checkout ${{ github.event.pull_request.base.sha }}
+          cargo bench --bench spsc -- --save-baseline base --noplot
+          cargo bench --bench mpsc -- --save-baseline base --noplot
+      - name: Benchmark PR branch
+        run: |
+          git checkout ${{ github.event.pull_request.head.sha }}
+          cargo bench --bench spsc -- --save-baseline pr --noplot
+          cargo bench --bench mpsc -- --save-baseline pr --noplot
+      - name: Compare (fail on >5% regression)
+        run: critcmp base pr --threshold 5
+
+  flamegraph:
+    name: "Flamegraph"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install flamegraph
+        run: cargo install flamegraph
+      - name: Install perf
+        run: sudo apt-get update && sudo apt-get install -y linux-tools-generic
+      - name: Generate SPSC flamegraph
+        run: cargo flamegraph --bench spsc -o flamegraph-spsc.svg -- --bench
+        continue-on-error: true
+      - name: Generate MPSC flamegraph
+        run: cargo flamegraph --bench mpsc -o flamegraph-mpsc.svg -- --bench
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flamegraphs
+          path: flamegraph-*.svg
+          if-no-files-found: ignore

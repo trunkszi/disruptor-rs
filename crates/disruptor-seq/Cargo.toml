@@ -1,0 +1,22 @@
+[package]
+name          = "disruptor-seq"
+version       = "0.1.0"
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+description   = "Sequencer barriers (single and multi-producer) for the disruptor-rs framework."
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+disruptor-core = { workspace = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "sequencer_bench"
+harness = false

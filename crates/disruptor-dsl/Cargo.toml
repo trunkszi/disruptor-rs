@@ -1,0 +1,28 @@
+[package]
+name          = "disruptor-dsl"
+version       = "0.1.0"
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+description   = "Builder DSL, Producer trait, and producer implementations for the disruptor-rs framework."
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+disruptor-core     = { workspace = true }
+disruptor-wait     = { workspace = true }
+disruptor-seq      = { version = "0.1.0", path = "../disruptor-seq" }
+disruptor-consumer = { version = "0.1.0", path = "../disruptor-consumer" }
+crossbeam-utils    = { workspace = true }
+core_affinity      = "0.8.1"
+thiserror          = { workspace = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "new_api_bench"
+harness = false

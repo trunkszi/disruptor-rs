@@ -1,0 +1,54 @@
+[workspace]
+resolver = "3"
+members  = [
+    ".",
+    "crates/disruptor-core",
+    "crates/disruptor-wait",
+    "crates/disruptor-seq",
+    "crates/disruptor-consumer",
+    "crates/disruptor-dsl",
+    "benches",
+    "examples",
+]
+
+[workspace.package]
+edition      = "2024"
+rust-version = "1.85"
+license      = "MIT"
+repository   = "https://github.com/trunkszi/disruptor-rs"
+
+[workspace.dependencies]
+disruptor-core     = { version = "0.1.0", path = "crates/disruptor-core" }
+disruptor-wait     = { version = "0.1.0", path = "crates/disruptor-wait" }
+disruptor-seq      = { version = "0.1.0", path = "crates/disruptor-seq" }
+disruptor-consumer = { version = "0.1.0", path = "crates/disruptor-consumer" }
+crossbeam-utils    = "0.8"
+thiserror          = "2.0"
+
+[package]
+name           = "disruptor"
+version        = "4.0.0"
+edition.workspace      = true
+rust-version.workspace = true
+description    = "A Rust port of the LMAX Disruptor -- low-latency inter-thread communication via a lock-free ring buffer."
+license        = "MIT"
+authors        = ["Nathan shea <itzrustz@gmail.com>"]
+repository     = "https://github.com/trunkszi/disruptor-rs"
+categories     = ["data-structures", "concurrency"]
+keywords       = ["disruptor", "ringbuffer", "message", "mpmc"]
+autobenches    = false
+autoexamples   = false
+exclude        = ["prompt.md", "docs/", "verification/", "tmux/", ".github/", "benches/"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+disruptor-core  = { workspace = true }
+crossbeam-utils = "0.8"
+core_affinity   = "0.8.1"
+thiserror       = "2.0"
+
+[dev-dependencies]
+loom = "0.7"

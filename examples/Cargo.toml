@@ -1,0 +1,65 @@
+[package]
+name         = "disruptor-examples"
+version      = "0.0.0"
+edition.workspace    = true
+rust-version.workspace = true
+publish      = false
+
+[dependencies]
+disruptor = { path = ".." }
+
+[[example]]
+name = "affinity"
+path = "affinity.rs"
+
+[[example]]
+name = "basic_mpsc"
+path = "basic_mpsc.rs"
+
+[[example]]
+name = "basic_spsc"
+path = "basic_spsc.rs"
+
+[[example]]
+name = "batch_publish"
+path = "batch_publish.rs"
+
+[[example]]
+name = "chained_disruptors"
+path = "chained_disruptors.rs"
+
+[[example]]
+name = "custom_handler"
+path = "custom_handler.rs"
+
+[[example]]
+name = "diamond"
+path = "diamond.rs"
+
+[[example]]
+name = "event_poller"
+path = "event_poller.rs"
+
+[[example]]
+name = "exception_handling"
+path = "exception_handling.rs"
+
+[[example]]
+name = "lifecycle_hooks"
+path = "lifecycle_hooks.rs"
+
+[[example]]
+name = "multicast"
+path = "multicast.rs"
+
+[[example]]
+name = "pipeline"
+path = "pipeline.rs"
+
+[[example]]
+name = "wait_strategies"
+path = "wait_strategies.rs"
+
+[[example]]
+name = "worker_pool"
+path = "worker_pool.rs"

@@ -1,0 +1,22 @@
+[package]
+name          = "disruptor-consumer"
+version       = "0.1.0"
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+description   = "Consumer types, event polling, and thread affinity for the disruptor-rs framework."
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = []
+async = []
+
+[dependencies]
+disruptor-core = { workspace = true }
+disruptor-wait = { workspace = true }
+crossbeam-utils = { workspace = true }
+core_affinity   = "0.8.1"
